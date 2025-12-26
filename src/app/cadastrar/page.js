@@ -1,230 +1,141 @@
-'use client'; // Necessário pois usa useState e eventos de formulário
+'use client';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
-export default function CadastrarKitnet() {
+export default function RegisterUser() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
-    const [previews, setPreviews] = useState([]); // Para mostrar miniaturas das fotos
+    const [error, setError] = useState('');
 
-    // Estado único para todos os campos de texto
     const [formData, setFormData] = useState({
-        nome: '',
-        valor: '',
-        vagas: '',
-        taxa: '',
-        descricao: '',
-        landlordName: '',  // Campos do Proprietário
-        landlordEmail: ''
+        name: '',
+        email: '',
+        password: '',
+        cpf: '',
+        phone: '',
+        role: 'TENANT' // Valor padrão
     });
 
-    // Estado separado para os arquivos
-    const [files, setFiles] = useState([]);
-
     const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
-    };
-
-    const handleFileChange = (e) => {
-        if (e.target.files) {
-            const selectedFiles = Array.from(e.target.files);
-
-            // --- NOVA VALIDAÇÃO DE TAMANHO ---
-            const MAX_SIZE = 15 * 1024 * 1024; // 10MB em bytes
-
-            // Verifica se algum arquivo ultrapassa o limite
-            const arquivoGigante = selectedFiles.find(file => file.size > MAX_SIZE);
-
-            if (arquivoGigante) {
-                alert(`O arquivo "${arquivoGigante.name}" é muito grande! O limite é de 10MB por arquivo.`);
-
-                // Limpa o input para permitir selecionar de novo
-                e.target.value = "";
-                // Opcional: Limpar o estado ou manter os arquivos anteriores válidos
-                // Aqui estou limpando tudo para forçar uma seleção válida
-                setFiles([]);
-                setPreviews([]);
-                return; // Para a execução aqui, não atualiza o estado
-            }
-            // ---------------------------------
-
-            setFiles(selectedFiles);
-
-            // Gera URLs temporárias para mostrar preview
-            const newPreviews = selectedFiles.map(file => URL.createObjectURL(file));
-            setPreviews(newPreviews);
-        }
+        setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
+        setError('');
 
         try {
-            // 1. Cria o objeto FormData
-            const dataToSend = new FormData();
-
-            // 2. Prepara o JSON da Kitnet
-            const kitnetJson = {
-                nome: formData.nome,
-                valor: parseFloat(formData.valor),
-                vagas: parseInt(formData.vagas),
-                taxa: parseFloat(formData.taxa),
-                descricao: formData.descricao,
-                landlord: {
-                    name: formData.landlordName,
-                    email: formData.landlordEmail
-                }
-            };
-
-            // 3. Adiciona o JSON como um Blob
-            dataToSend.append('kitnet', new Blob([JSON.stringify(kitnetJson)], {
-                type: 'application/json'
-            }));
-
-            // 4. Adiciona as fotos
-            files.forEach(file => {
-                dataToSend.append('files', file);
-            });
-
-            // 5. Envia para o Backend
-            const response = await fetch('http://localhost:8080/api/kitnets', {
+            const response = await fetch('http://localhost:8080/auth/register', {
                 method: 'POST',
-                body: dataToSend,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
             });
 
             if (response.ok) {
-                alert('Kitnet cadastrada com sucesso!');
-                router.push('/'); // Volta para a home
+                alert("Conta criada com sucesso! Faça login para continuar.");
+                router.push('/login'); // Redireciona para o login
             } else {
-                // --- INICIO DA ALTERAÇÃO: TRATAMENTO DE ERRO ---
-
-                // Tenta ler o corpo da resposta como JSON
-                let errorData = {};
-                try {
-                    errorData = await response.json();
-                } catch (jsonError) {
-                    console.warn("Resposta de erro não é JSON válido.");
-                }
-
-                // Verifica se é o erro de tamanho (413 Payload Too Large)
-                if (response.status === 413) {
-                    // Usa a mensagem vinda do Java ou um fallback
-                    const msg = errorData.mensagem || "Os arquivos são muito grandes. Tente enviar arquivos menores.";
-                    alert(`⚠️ Atenção: ${msg}`);
-                }
-                else {
-                    // Outros erros (400 Bad Request, 500 Internal Error, etc)
-                    const msg = errorData.mensagem || "Erro ao cadastrar. Verifique os dados.";
-                    alert(`Erro: ${msg}`);
-                }
-                // --- FIM DA ALTERAÇÃO ---
+                // Tenta pegar mensagem de erro do backend se houver
+                const data = await response.json().catch(() => ({}));
+                setError(data.message || "Erro ao criar conta. Verifique os dados (Email já existe?).");
             }
-
-        } catch (error) {
-            console.error('Erro:', error);
-            alert('Erro de conexão com o servidor. Verifique se a API está rodando.');
+        } catch (err) {
+            console.error(err);
+            setError("Erro de conexão com o servidor.");
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="max-w-2xl mx-auto p-6 bg-white shadow-lg rounded-lg mt-10">
-            <h1 className="text-2xl font-bold mb-6 text-gray-800 border-b pb-2">Cadastrar Nova Kitnet</h1>
+        <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
+            <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-lg border border-gray-200">
+                <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">Crie sua Conta</h2>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-
-                {/* SEÇÃO 1: Dados da Kitnet */}
-                <div className="space-y-4">
-                    <h2 className="text-lg font-semibold text-blue-600">🏠 Dados do Imóvel</h2>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">Nome do Anúncio</label>
-                            <input type="text" name="nome" required
-                                   className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-                                   onChange={handleChange} />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">Valor (R$)</label>
-                            <input type="number" name="valor" step="0.01" required
-                                   className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-                                   onChange={handleChange} />
-                        </div>
+                {error && (
+                    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 text-sm">
+                        {error}
                     </div>
+                )}
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">Vagas</label>
-                            <input type="number" name="vagas" required
-                                   className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-                                   onChange={handleChange} />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">Taxa de Condomínio (R$)</label>
-                            <input type="number" name="taxa" step="0.01" required
-                                   className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-                                   onChange={handleChange} />
-                        </div>
-                    </div>
+                <form onSubmit={handleSubmit} className="space-y-4">
 
+                    {/* Nome Completo */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700">Descrição</label>
-                        <textarea name="descricao" rows="3"
-                                  className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-                                  onChange={handleChange}></textarea>
+                        <label className="block text-gray-900 text-sm font-bold mb-1">Nome Completo</label>
+                        <input type="text" name="name" required onChange={handleChange}
+                               className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 focus:bg-white text-gray-900"
+                               placeholder="Seu Nome" />
                     </div>
-                </div>
 
-                {/* SEÇÃO 2: Proprietário */}
-                <div className="space-y-4 border-t pt-4">
-                    <h2 className="text-lg font-semibold text-blue-600">👤 Dados do Proprietário</h2>
+                    {/* Email e Senha */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700">Nome Completo</label>
-                            <input type="text" name="landlordName" required
-                                   className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-                                   onChange={handleChange} />
+                            <label className="block text-gray-900 text-sm font-bold mb-1">Email</label>
+                            <input type="email" name="email" required onChange={handleChange}
+                                   className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 focus:bg-white text-gray-900"
+                                   placeholder="email@exemplo.com" />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700">Email</label>
-                            <input type="email" name="landlordEmail" required
-                                   className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-                                   onChange={handleChange} />
+                            <label className="block text-gray-900 text-sm font-bold mb-1">Senha</label>
+                            <input type="password" name="password" required onChange={handleChange}
+                                   className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 focus:bg-white text-gray-900"
+                                   placeholder="******" />
                         </div>
                     </div>
-                </div>
 
-                {/* SEÇÃO 3: Fotos */}
-                <div className="space-y-4 border-t pt-4">
-                    <h2 className="text-lg font-semibold text-blue-600">📷 Galeria de Fotos</h2>
-                    <input
-                        type="file"
-                        multiple
-                        accept="image/*"
-                        onChange={handleFileChange}
-                        className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                    />
-
-                    {/* Preview das imagens */}
-                    <div className="flex gap-2 overflow-x-auto py-2">
-                        {previews.map((src, index) => (
-                            <img key={index} src={src} alt="Preview" className="h-20 w-20 object-cover rounded-md border" />
-                        ))}
+                    {/* CPF e Telefone */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-gray-900 text-sm font-bold mb-1">CPF</label>
+                            <input type="text" name="cpf" required onChange={handleChange}
+                                   className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 focus:bg-white text-gray-900"
+                                   placeholder="000.000.000-00" />
+                        </div>
+                        <div>
+                            <label className="block text-gray-900 text-sm font-bold mb-1">Telefone</label>
+                            <input type="text" name="phone" required onChange={handleChange}
+                                   className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 focus:bg-white text-gray-900"
+                                   placeholder="(00) 00000-0000" />
+                        </div>
                     </div>
-                </div>
 
-                <button
-                    type="submit"
-                    disabled={loading}
-                    className={`w-full py-3 px-4 rounded-md text-white font-bold transition-colors ${loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'}`}
-                >
-                    {loading ? 'Enviando...' : 'Cadastrar Kitnet'}
-                </button>
-            </form>
+                    {/* Seleção de Perfil (Role) */}
+                    <div>
+                        <label className="block text-gray-900 text-sm font-bold mb-2">Eu sou:</label>
+                        <div className="flex gap-4">
+                            <label className="flex items-center gap-2 cursor-pointer border p-3 rounded-lg w-full hover:bg-gray-50">
+                                <input type="radio" name="role" value="TENANT"
+                                       checked={formData.role === 'TENANT'} onChange={handleChange}
+                                       className="accent-blue-600 w-5 h-5" />
+                                <span className="text-gray-800 font-medium">Inquilino (Quero alugar)</span>
+                            </label>
+
+                            <label className="flex items-center gap-2 cursor-pointer border p-3 rounded-lg w-full hover:bg-gray-50">
+                                <input type="radio" name="role" value="LANDLORD"
+                                       checked={formData.role === 'LANDLORD'} onChange={handleChange}
+                                       className="accent-blue-600 w-5 h-5" />
+                                <span className="text-gray-800 font-medium">Proprietário (Quero anunciar)</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <button type="submit" disabled={loading}
+                            className={`w-full text-white font-bold py-3 px-4 rounded-lg transition duration-300 ${loading ? 'bg-gray-400' : 'bg-green-600 hover:bg-green-700'}`}>
+                        {loading ? 'Criando Conta...' : 'Cadastrar'}
+                    </button>
+                </form>
+
+                <p className="mt-4 text-center text-sm text-gray-600">
+                    Já tem uma conta?{' '}
+                    <Link href="/login" className="text-blue-600 hover:underline font-bold">
+                        Faça Login
+                    </Link>
+                </p>
+            </div>
         </div>
     );
 }
