@@ -12,6 +12,7 @@ export default function Navbar() {
     useEffect(() => {
         const userStored = localStorage.getItem('user');
         if (userStored) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setUser(JSON.parse(userStored));
         }
     }, []);

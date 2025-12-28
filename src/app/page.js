@@ -1,6 +1,7 @@
 "use client"; // CRUCIAL: Define a página inteira como Client Component
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 // Verifique se o caminho do seu Navbar está correto
 import Navbar from '@/components/Navbar';
 
@@ -118,27 +119,50 @@ export default function Home() {
                             {loading ? (
                                 <p className="text-gray-500 text-center py-4">Carregando resultados...</p>
                             ) : kitnets.length > 0 ? (
-                                kitnets.map((kitnet) => (
-                                    <div key={kitnet.id} className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
-                                        <div className="flex justify-between items-start">
-                                            <div>
-                                                <h2 className="text-xl font-bold text-gray-900">{kitnet.nome}</h2>
-                                                <p className="text-sm text-gray-500 mt-1">{kitnet.descricao}</p>
-                                            </div>
-                                            <div className="text-right">
-                                                <p className="text-2xl font-bold text-green-600">R$ {(kitnet.valor ?? 0).toFixed(2)}</p>
-                                                <span className="text-xs text-gray-500 block mt-1">Taxa: R$ {(kitnet.taxa ?? 0).toFixed(2)}</span>
-                                            </div>
-                                        </div>
+                                kitnets.map((kitnet) => {
+                                    const firstPhoto = kitnet.photos && kitnet.photos.length > 0 ? kitnet.photos[0] : null;
+                                    let mainPhoto = '/window.svg';
 
-                                        <div className="mt-4 pt-4 border-t border-gray-100 flex items-center gap-4 text-sm text-gray-600">
-                                            <span className="flex items-center gap-1 font-medium">
-                                                🛏️ {kitnet.vagas} {kitnet.vagas === 1 ? 'Vaga' : 'Vagas'}
-                                            </span>
-                                            {/* Aqui você pode adicionar mais detalhes se tiver, ex: endereço */}
-                                        </div>
-                                    </div>
-                                ))
+                                    if (firstPhoto) {
+                                        const path = firstPhoto.thumbnailUrl || firstPhoto.url;
+                                        mainPhoto = path.startsWith('http') ? path : `http://localhost:8080${path}`;
+                                    }
+
+                                    return (
+                                        <Link href={`/kitnet/${kitnet.id}`} key={kitnet.id} className="block bg-white p-4 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow hover:border-blue-300 cursor-pointer group">
+                                            <div className="flex flex-col md:flex-row gap-4">
+                                                {/* Imagem Thumb */}
+                                                <div className="w-full md:w-48 h-48 md:h-32 bg-gray-100 rounded-md overflow-hidden flex-shrink-0 relative">
+                                                    <img 
+                                                        src={mainPhoto} 
+                                                        alt={kitnet.nome} 
+                                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                                    />
+                                                </div>
+
+                                                {/* Conteúdo */}
+                                                <div className="flex-1 flex flex-col justify-between">
+                                                    <div className="flex justify-between items-start">
+                                                        <div>
+                                                            <h2 className="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors">{kitnet.nome}</h2>
+                                                            <p className="text-sm text-gray-500 mt-1 line-clamp-2">{kitnet.descricao}</p>
+                                                        </div>
+                                                        <div className="text-right flex-shrink-0 ml-4">
+                                                            <p className="text-xl font-bold text-green-600">R$ {(kitnet.valor ?? 0).toFixed(2)}</p>
+                                                            <span className="text-xs text-gray-500 block mt-1">Taxa: R$ {(kitnet.taxa ?? 0).toFixed(2)}</span>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="mt-auto pt-4 flex items-center gap-4 text-sm text-gray-600">
+                                                        <span className="flex items-center gap-1 font-medium bg-gray-100 px-2 py-1 rounded">
+                                                            🛏️ {kitnet.vagas} {kitnet.vagas === 1 ? 'Vaga' : 'Vagas'}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </Link>
+                                    );
+                                })
                             ) : (
                                 <div className="text-center py-10 bg-white rounded-lg border border-dashed border-gray-300">
                                     <p className="text-gray-500 font-medium">Nenhuma kitnet encontrada com os filtros atuais.</p>
