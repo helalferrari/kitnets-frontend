@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import ImageWithFallback from '@/components/ImageWithFallback';
 // Verifique se o caminho do seu Navbar está correto
 import Navbar from '@/components/Navbar';
 
@@ -133,10 +134,12 @@ export default function Home() {
                                             <div className="flex flex-col md:flex-row gap-4">
                                                 {/* Imagem Thumb */}
                                                 <div className="w-full md:w-48 h-48 md:h-32 bg-gray-100 rounded-md overflow-hidden flex-shrink-0 relative">
-                                                    <img 
+                                                    <ImageWithFallback 
                                                         src={mainPhoto} 
                                                         alt={kitnet.nome} 
-                                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                                        fill
+                                                        sizes="(max-width: 768px) 100vw, 200px"
+                                                        className="object-cover group-hover:scale-105 transition-transform duration-300"
                                                     />
                                                 </div>
 

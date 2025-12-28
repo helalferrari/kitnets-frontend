@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect, use } from 'react';
+import { useState, useEffect, use, useMemo } from 'react';
 import Navbar from '@/components/Navbar';
 import Link from 'next/link';
+import ImageWithFallback from '@/components/ImageWithFallback';
 
 const API_BASE_URL = 'http://localhost:8080/api/kitnets';
 
@@ -12,8 +13,10 @@ export default function KitnetDetails({ params }) {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [selectedImage, setSelectedImage] = useState(null);
+    const [isMounted, setIsMounted] = useState(false);
 
     useEffect(() => {
+        setIsMounted(true);
         const fetchKitnet = async () => {
             try {
                 const response = await fetch(`${API_BASE_URL}/${id}`);
@@ -43,7 +46,28 @@ export default function KitnetDetails({ params }) {
         setSelectedImage(null);
     };
 
-    if (loading) return (
+    // Helper to build full image URL
+    const getImageUrl = (path) => {
+        if (!path) return '/file.svg'; 
+        return path.startsWith('http') ? path : `http://localhost:8080${path}`;
+    };
+
+    // Use 'photos' from API, or fallback placeholders if empty
+    const images = useMemo(() => {
+        if (!kitnet) return [];
+        return (kitnet.photos && kitnet.photos.length > 0) 
+            ? kitnet.photos.map(p => ({
+                thumb: getImageUrl(p.thumbnailUrl || p.url),
+                full: getImageUrl(p.url)
+            }))
+            : [
+                { thumb: '/file.svg', full: '/file.svg' },
+                { thumb: '/globe.svg', full: '/globe.svg' },
+                { thumb: '/window.svg', full: '/window.svg' }
+            ];
+    }, [kitnet]);
+
+    if (loading || !isMounted) return (
         <div className="min-h-screen bg-gray-50 flex items-center justify-center">
             <p className="text-gray-500 text-lg">Carregando detalhes...</p>
         </div>
@@ -57,24 +81,6 @@ export default function KitnetDetails({ params }) {
     );
 
     if (!kitnet) return null;
-
-    // Helper to build full image URL
-    const getImageUrl = (path) => {
-        if (!path) return '/file.svg'; // Fallback
-        return path.startsWith('http') ? path : `http://localhost:8080${path}`;
-    };
-
-    // Use 'photos' from API, or fallback placeholders if empty
-    const images = (kitnet.photos && kitnet.photos.length > 0) 
-        ? kitnet.photos.map(p => ({
-            thumb: getImageUrl(p.thumbnailUrl || p.url),
-            full: getImageUrl(p.url)
-        }))
-        : [
-            { thumb: '/file.svg', full: '/file.svg' },
-            { thumb: '/globe.svg', full: '/globe.svg' },
-            { thumb: '/window.svg', full: '/window.svg' }
-        ];
 
     return (
         <main className="min-h-screen bg-gray-50 pb-10">
@@ -114,10 +120,12 @@ export default function KitnetDetails({ params }) {
                                         className="relative h-48 w-full cursor-pointer overflow-hidden rounded-lg shadow-sm border-2 border-transparent hover:border-blue-500 transition-all group"
                                         onClick={() => openModal(img.full)}
                                     >
-                                        <img 
+                                        <ImageWithFallback 
                                             src={img.thumb} 
                                             alt={`Foto ${index + 1} de ${kitnet.nome}`}
-                                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                            fill
+                                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                            className="object-cover group-hover:scale-110 transition-transform duration-500"
                                         />
                                         <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-opacity flex items-center justify-center">
                                             <span className="text-white opacity-0 group-hover:opacity-100 font-bold bg-black bg-opacity-50 px-3 py-1 rounded-full text-sm">Ver Zoom</span>
