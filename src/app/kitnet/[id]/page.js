@@ -11,7 +11,7 @@ export default function KitnetDetails({ params }) {
     const [kitnet, setKitnet] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [selectedImage, setSelectedImage] = useState(null);
+    const [selectedImageIndex, setSelectedImageIndex] = useState(null);
 
     useEffect(() => {
         const fetchKitnet = async () => {
@@ -35,13 +35,36 @@ export default function KitnetDetails({ params }) {
         }
     }, [id]);
 
-    const openModal = (imgSrc) => {
-        setSelectedImage(imgSrc);
+    const openModal = (index) => {
+        setSelectedImageIndex(index);
     };
 
     const closeModal = () => {
-        setSelectedImage(null);
+        setSelectedImageIndex(null);
     };
+
+    const handleNext = (e) => {
+        if (e) e.stopPropagation();
+        if (!kitnet || !kitnet.photos) return;
+        setSelectedImageIndex((prev) => (prev + 1) % kitnet.photos.length);
+    };
+
+    const handlePrev = (e) => {
+        if (e) e.stopPropagation();
+        if (!kitnet || !kitnet.photos) return;
+        setSelectedImageIndex((prev) => (prev - 1 + kitnet.photos.length) % kitnet.photos.length);
+    };
+
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (selectedImageIndex === null) return;
+            if (e.key === 'Escape') closeModal();
+            if (e.key === 'ArrowRight') handleNext();
+            if (e.key === 'ArrowLeft') handlePrev();
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [selectedImageIndex]);
 
     if (loading) return (
         <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -100,13 +123,12 @@ export default function KitnetDetails({ params }) {
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                 {photos.map((photo, index) => {
                                     const thumbUrl = getImageUrl(photo.thumbnailUrl || photo.url);
-                                    const fullUrl = getImageUrl(photo.url);
 
                                     return (
                                         <div 
                                             key={photo.id || index} 
                                             className="relative h-48 w-full cursor-pointer overflow-hidden rounded-lg shadow-sm border-2 border-transparent hover:border-blue-500 transition-all group"
-                                            onClick={() => openModal(fullUrl)}
+                                            onClick={() => openModal(index)}
                                         >
                                             <img 
                                                 src={thumbUrl} 
@@ -157,26 +179,54 @@ export default function KitnetDetails({ params }) {
             </div>
 
             {/* Modal de Imagem (Lightbox) */}
-            {selectedImage && (
+            {selectedImageIndex !== null && photos.length > 0 && (
                 <div 
                     className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-95 p-4 backdrop-blur-sm"
                     onClick={closeModal}
                 >
                     <button 
-                        className="absolute top-4 right-4 text-white hover:text-gray-300 z-50 p-2 bg-black bg-opacity-50 rounded-full"
+                        className="absolute top-4 right-4 text-white hover:text-gray-300 z-50 p-2 bg-black bg-opacity-50 rounded-full hover:bg-white hover:bg-opacity-20 transition-all"
                         onClick={closeModal}
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
-                    <div className="relative max-w-full max-h-full" onClick={(e) => e.stopPropagation()}>
+                    
+                    {/* Botão Anterior */}
+                    {photos.length > 1 && (
+                        <button 
+                            className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white hover:text-gray-300 z-50 p-3 bg-black bg-opacity-50 rounded-full hover:bg-white hover:bg-opacity-20 transition-all"
+                            onClick={handlePrev}
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </button>
+                    )}
+
+                    <div className="relative max-w-full max-h-full flex flex-col items-center" onClick={(e) => e.stopPropagation()}>
                         <img 
-                            src={selectedImage} 
-                            alt="Visualização ampliada" 
-                            className="max-w-screen max-h-screen object-contain rounded-md shadow-2xl"
+                            src={getImageUrl(photos[selectedImageIndex].url)} 
+                            alt={`Visualização ampliada ${selectedImageIndex + 1}`} 
+                            className="max-w-screen max-h-[90vh] object-contain rounded-md shadow-2xl"
                         />
+                        <span className="text-white mt-4 bg-black bg-opacity-50 px-3 py-1 rounded-full text-sm">
+                            {selectedImageIndex + 1} / {photos.length}
+                        </span>
                     </div>
+
+                    {/* Botão Próximo */}
+                    {photos.length > 1 && (
+                        <button 
+                            className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white hover:text-gray-300 z-50 p-3 bg-black bg-opacity-50 rounded-full hover:bg-white hover:bg-opacity-20 transition-all"
+                            onClick={handleNext}
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                        </button>
+                    )}
                 </div>
             )}
         </main>
