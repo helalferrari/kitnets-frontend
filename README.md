@@ -1,8 +1,16 @@
-# Kitnets Frontend
+# Kitnets Frontend 🖥️
 
-Este é o projeto frontend da aplicação de gerenciamento e busca de Kitnets. Desenvolvido utilizando **Next.js** e **Tailwind CSS**, o projeto foca em performance, usabilidade e uma interface moderna para listar e visualizar detalhes de imóveis.
+Este é o projeto frontend da aplicação de gerenciamento e busca de Kitnets. Desenvolvido utilizando **Next.js** e **Tailwind CSS**, o projeto foca em performance, usabilidade e uma interface moderna para listar, visualizar e gerenciar imóveis.
 
-## 🚀 Stack Tecnológica
+## 🚀 Funcionalidades
+
+- **Busca Pública:** Listagem de kitnets com filtros por CEP e faixa de preço.
+- **Autenticação:** Login e Cadastro com perfis distintos (Inquilino e Proprietário).
+- **Painel do Proprietário:** Área administrativa para visualizar seus imóveis cadastrados.
+- **Gestão de Kitnets:** Cadastro de novas kitnets com upload de imagens e **edição** de informações.
+- **Segurança:** Redirecionamento automático e limpeza de sessão em caso de tokens inválidos (401/403).
+
+## 🛠️ Stack Tecnológica
 
 O projeto foi construído sobre uma base moderna utilizando as seguintes tecnologias principais:
 
@@ -84,6 +92,7 @@ Utilizamos Conventional Commits:
 -   `docs:` para alterações na documentação.
 -   `style:` para formatação, ponto e vírgula, etc.
 -   `refactor:` para refatoração de código.
+-   `test:` para adição ou correção de testes.
 
 ## 📄 Licença
 
