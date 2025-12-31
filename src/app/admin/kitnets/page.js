@@ -35,6 +35,12 @@ export default function MyKitnets() {
                 });
 
                 if (!response.ok) {
+                    if (response.status === 401 || response.status === 403) {
+                        localStorage.removeItem('token');
+                        localStorage.removeItem('user');
+                        router.push('/login');
+                        return;
+                    }
                     throw new Error('Falha ao buscar kitnets.');
                 }
 
