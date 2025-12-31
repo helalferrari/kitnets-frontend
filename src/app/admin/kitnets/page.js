@@ -131,7 +131,12 @@ export default function MyKitnets() {
                                             >
                                                 Visualizar
                                             </Link>
-                                            {/* Futuro: Botões de Editar/Excluir */}
+                                            <Link 
+                                                href={`/admin/kitnets/editar/${kitnet.id}`}
+                                                className="text-yellow-600 hover:text-yellow-800 text-sm font-medium"
+                                            >
+                                                Editar
+                                            </Link>
                                         </div>
                                     </div>
                                 </div>
