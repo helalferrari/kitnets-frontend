@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Navbar from '@/components/Navbar';
+import { fetchAddressByCep } from '@/services/cepService';
 
 export default function EditarKitnet() {
     const router = useRouter();
@@ -12,6 +13,8 @@ export default function EditarKitnet() {
     const [isAuthorized, setIsAuthorized] = useState(false);
     const [loading, setLoading] = useState(true); // Loading inicial do fetch
     const [saving, setSaving] = useState(false); // Loading do salvar
+    const [cepLoading, setCepLoading] = useState(false);
+    const [cepError, setCepError] = useState('');
 
     const [formData, setFormData] = useState({
         nome: '',
@@ -25,7 +28,9 @@ export default function EditarKitnet() {
         number: '',
         neighborhood: '',
         city: '',
-        state: ''
+        state: '',
+        latitude: null,
+        longitude: null
     });
 
     // --- 1. Autenticação e Fetch de Dados ---
@@ -67,7 +72,9 @@ export default function EditarKitnet() {
                     number: data.number || '',
                     neighborhood: data.neighborhood || '',
                     city: data.city || '',
-                    state: data.state || ''
+                    state: data.state || '',
+                    latitude: data.latitude || null,
+                    longitude: data.longitude || null
                 });
 
             } catch (error) {
@@ -96,11 +103,39 @@ export default function EditarKitnet() {
             .substring(0, 9); // Limita o tamanho
     };
 
+    const handleCepChange = async (value) => {
+        const maskedCep = maskCep(value);
+        setFormData(prev => ({ ...prev, cep: maskedCep }));
+        setCepError(''); // Limpa erro ao digitar
+
+        const cleanCep = maskedCep.replace(/\D/g, '');
+        if (cleanCep.length === 8) {
+            setCepLoading(true);
+            try {
+                const addressData = await fetchAddressByCep(cleanCep);
+                setFormData(prev => ({
+                    ...prev,
+                    logradouro: addressData.street || prev.logradouro,
+                    neighborhood: addressData.neighborhood || prev.neighborhood,
+                    city: addressData.city || prev.city,
+                    state: addressData.state || prev.state,
+                    latitude: addressData.location?.coordinates?.latitude || null,
+                    longitude: addressData.location?.coordinates?.longitude || null
+                }));
+            } catch (error) {
+                console.error("Erro ao buscar CEP:", error);
+                setCepError("CEP não encontrado ou inválido.");
+            } finally {
+                setCepLoading(false);
+            }
+        }
+    };
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         
         if (name === 'cep') {
-            setFormData(prev => ({ ...prev, [name]: maskCep(value) }));
+            handleCepChange(value);
         } else {
             setFormData(prev => ({ ...prev, [name]: value }));
         }
@@ -131,7 +166,9 @@ export default function EditarKitnet() {
                     number: formData.number,
                     neighborhood: formData.neighborhood,
                     city: formData.city,
-                    state: formData.state
+                    state: formData.state,
+                    lat: formData.latitude,
+                    long: formData.longitude
                 })
             });
 
@@ -227,12 +264,15 @@ export default function EditarKitnet() {
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
-                                <label className="block text-sm font-bold text-gray-900 mb-1">CEP</label>
+                                <label className="block text-sm font-bold text-gray-900 mb-1">
+                                    CEP {cepLoading && <span className="text-blue-500 text-xs animate-pulse">(Buscando...)</span>}
+                                </label>
                                 <input type="text" name="cep" required
                                        value={formData.cep}
                                        placeholder="00000-000"
-                                       className="mt-1 block w-full border border-gray-300 rounded-md p-2.5 text-gray-900 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-all"
+                                       className={`mt-1 block w-full border ${cepError ? 'border-red-500' : 'border-gray-300'} rounded-md p-2.5 text-gray-900 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-all`}
                                        onChange={handleChange} />
+                                {cepError && <p className="text-red-500 text-xs mt-1">{cepError}</p>}
                             </div>
                             <div className="md:col-span-2">
                                 <label className="block text-sm font-bold text-gray-900 mb-1">Logradouro</label>
