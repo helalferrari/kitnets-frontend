@@ -104,14 +104,14 @@ export default function KitnetDetails({ params }) {
                     <div className="p-8 border-b border-gray-100 bg-white">
                         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                             <div>
-                                <h1 className="text-3xl font-bold text-gray-900">{kitnet.nome}</h1>
+                                <h1 className="text-3xl font-bold text-gray-900">{kitnet.name}</h1>
                                 <p className="text-gray-500 mt-1 flex items-center gap-2">
-                                    📍 {kitnet.endereco || "Endereço não informado"}
+                                    📍 {kitnet.street}, {kitnet.number} - {kitnet.neighborhood}, {kitnet.city} - {kitnet.state}
                                 </p>
                             </div>
                             <div className="text-left md:text-right bg-blue-50 px-6 py-3 rounded-lg border border-blue-100">
-                                <p className="text-3xl font-bold text-blue-700">R$ {(kitnet.valor ?? 0).toFixed(2)}</p>
-                                <span className="text-sm text-blue-600 font-medium">Taxa: R$ {(kitnet.taxa ?? 0).toFixed(2)}</span>
+                                <p className="text-3xl font-bold text-blue-700">R$ {(kitnet.value ?? 0).toFixed(2)}</p>
+                                <span className="text-sm text-blue-600 font-medium">Taxa: R$ {(kitnet.fee ?? 0).toFixed(2)}</span>
                             </div>
                         </div>
                     </div>
@@ -132,7 +132,7 @@ export default function KitnetDetails({ params }) {
                                         >
                                             <img 
                                                 src={thumbUrl} 
-                                                alt={`Foto ${index + 1} de ${kitnet.nome}`}
+                                                alt={`Foto ${index + 1} de ${kitnet.name}`}
                                                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                                             />
                                             <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-opacity flex items-center justify-center">
@@ -151,8 +151,18 @@ export default function KitnetDetails({ params }) {
                     <div className="p-8 grid grid-cols-1 md:grid-cols-3 gap-8">
                         <div className="md:col-span-2">
                             <h2 className="text-xl font-bold text-gray-800 mb-4">Descrição</h2>
-                            <div className="prose text-gray-600 leading-relaxed">
-                                {kitnet.descricao}
+                            <div className="prose text-gray-600 leading-relaxed mb-6">
+                                {kitnet.description}
+                            </div>
+
+                            <h2 className="text-xl font-bold text-gray-800 mb-4">Comodidades</h2>
+                            <div className="grid grid-cols-2 gap-2">
+                                {kitnet.amenities && kitnet.amenities.map(amenity => (
+                                    <span key={amenity} className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm flex items-center gap-2">
+                                        ✅ {amenity.replace('_', ' ')}
+                                    </span>
+                                ))}
+                                {!kitnet.amenities?.length && <p className="text-gray-500 italic">Nenhuma comodidade listada.</p>}
                             </div>
                         </div>
 
@@ -161,13 +171,24 @@ export default function KitnetDetails({ params }) {
                             <ul className="space-y-3 text-gray-700">
                                 <li className="flex justify-between">
                                     <span className="font-medium">Vagas:</span>
-                                    <span>{kitnet.vagas}</span>
+                                    <span>{kitnet.parkingSpaces}</span>
                                 </li>
                                 <li className="flex justify-between">
                                     <span className="font-medium">Tamanho:</span>
-                                    <span>{kitnet.tamanho ? `${kitnet.tamanho} m²` : 'N/A'}</span>
+                                    <span>{kitnet.area ? `${kitnet.area} m²` : 'N/A'}</span>
                                 </li>
-                                {/* Adicione mais campos conforme a API retornar */}
+                                <li className="flex justify-between">
+                                    <span className="font-medium">Banheiro:</span>
+                                    <span className="capitalize">{kitnet.bathroomType?.toLowerCase()}</span>
+                                </li>
+                                <li className="flex justify-between">
+                                    <span className="font-medium">Mobiliado:</span>
+                                    <span>{kitnet.furnished ? 'Sim' : 'Não'}</span>
+                                </li>
+                                <li className="flex justify-between">
+                                    <span className="font-medium">Aceita Pets:</span>
+                                    <span>{kitnet.petsAllowed ? 'Sim' : 'Não'}</span>
+                                </li>
                             </ul>
                             
                             <button className="w-full mt-6 bg-green-600 text-white font-bold py-3 rounded-lg hover:bg-green-700 transition shadow-md hover:shadow-lg">

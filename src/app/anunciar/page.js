@@ -19,13 +19,18 @@ export default function CadastrarKitnet() {
     const [previews, setPreviews] = useState([]);
 
     const [formData, setFormData] = useState({
-        nome: '',
-        valor: '',
-        vagas: '',
-        taxa: '',
-        descricao: '',
+        name: '',
+        value: '',
+        parkingSpaces: '',
+        fee: '',
+        description: '',
+        area: '',
+        furnished: false,
+        petsAllowed: false,
+        bathroomType: 'PRIVATIVO',
+        amenities: [],
         cep: '',
-        logradouro: '',
+        street: '',
         complement: '',
         number: '',
         neighborhood: '',
@@ -80,7 +85,7 @@ export default function CadastrarKitnet() {
                 const addressData = await fetchAddressByCep(cleanCep);
                 setFormData(prev => ({
                     ...prev,
-                    logradouro: addressData.street || prev.logradouro,
+                    street: addressData.street || prev.street,
                     neighborhood: addressData.neighborhood || prev.neighborhood,
                     city: addressData.city || prev.city,
                     state: addressData.state || prev.state,
@@ -136,13 +141,18 @@ export default function CadastrarKitnet() {
             const dataToSend = new FormData();
 
             const kitnetJson = {
-                nome: formData.nome,
-                valor: parseFloat(formData.valor),
-                vagas: parseInt(formData.vagas),
-                taxa: parseFloat(formData.taxa),
-                descricao: formData.descricao,
+                name: formData.name,
+                value: parseFloat(formData.value),
+                parkingSpaces: parseInt(formData.parkingSpaces),
+                fee: parseFloat(formData.fee),
+                description: formData.description,
+                area: parseFloat(formData.area || 0),
+                furnished: formData.furnished,
+                petsAllowed: formData.petsAllowed,
+                bathroomType: formData.bathroomType,
+                amenities: formData.amenities,
                 cep: formData.cep,
-                logradouro: formData.logradouro,
+                street: formData.street,
                 complement: formData.complement,
                 number: formData.number,
                 neighborhood: formData.neighborhood,
@@ -226,14 +236,38 @@ export default function CadastrarKitnet() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label className="block text-sm font-bold text-gray-900 mb-1">Nome do Anúncio</label>
-                                <input type="text" name="nome" required
+                                <input type="text" name="name" required
                                        placeholder="Ex: Kitnet na Trindade"
                                        className="mt-1 block w-full border border-gray-300 rounded-md p-2.5 text-gray-900 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                                        onChange={handleChange} />
                             </div>
                             <div>
                                 <label className="block text-sm font-bold text-gray-900 mb-1">Valor (R$)</label>
-                                <input type="number" name="valor" step="0.01" required
+                                <input type="number" name="value" step="0.01" required
+                                       placeholder="0,00"
+                                       className="mt-1 block w-full border border-gray-300 rounded-md p-2.5 text-gray-900 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                                       onChange={handleChange} />
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label className="block text-sm font-bold text-gray-900 mb-1">Área (m²)</label>
+                                <input type="number" name="area" step="0.01"
+                                       placeholder="0,00"
+                                       className="mt-1 block w-full border border-gray-300 rounded-md p-2.5 text-gray-900 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                                       onChange={handleChange} />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-bold text-gray-900 mb-1">Vagas</label>
+                                <input type="number" name="parkingSpaces" required
+                                       placeholder="1"
+                                       className="mt-1 block w-full border border-gray-300 rounded-md p-2.5 text-gray-900 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                                       onChange={handleChange} />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-bold text-gray-900 mb-1">Taxa de Condomínio (R$)</label>
+                                <input type="number" name="fee" step="0.01" required
                                        placeholder="0,00"
                                        className="mt-1 block w-full border border-gray-300 rounded-md p-2.5 text-gray-900 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                                        onChange={handleChange} />
@@ -242,24 +276,57 @@ export default function CadastrarKitnet() {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-bold text-gray-900 mb-1">Vagas</label>
-                                <input type="number" name="vagas" required
-                                       placeholder="1"
-                                       className="mt-1 block w-full border border-gray-300 rounded-md p-2.5 text-gray-900 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-                                       onChange={handleChange} />
+                                <label className="block text-sm font-bold text-gray-900 mb-1">Tipo de Banheiro</label>
+                                <select name="bathroomType"
+                                        className="mt-1 block w-full border border-gray-300 rounded-md p-2.5 text-gray-900 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                                        onChange={handleChange}>
+                                    <option value="PRIVATIVO">Privativo</option>
+                                    <option value="COMPARTILHADO">Compartilhado</option>
+                                </select>
                             </div>
-                            <div>
-                                <label className="block text-sm font-bold text-gray-900 mb-1">Taxa de Condomínio (R$)</label>
-                                <input type="number" name="taxa" step="0.01" required
-                                       placeholder="0,00"
-                                       className="mt-1 block w-full border border-gray-300 rounded-md p-2.5 text-gray-900 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-                                       onChange={handleChange} />
+                            <div className="flex items-center gap-6 mt-6">
+                                <label className="flex items-center gap-2 cursor-pointer">
+                                    <input type="checkbox" name="furnished"
+                                           className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
+                                           onChange={(e) => setFormData(prev => ({...prev, furnished: e.target.checked}))} />
+                                    <span className="text-gray-900 font-medium">Mobiliado</span>
+                                </label>
+                                <label className="flex items-center gap-2 cursor-pointer">
+                                    <input type="checkbox" name="petsAllowed"
+                                           className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
+                                           onChange={(e) => setFormData(prev => ({...prev, petsAllowed: e.target.checked}))} />
+                                    <span className="text-gray-900 font-medium">Aceita Pets</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-bold text-gray-900 mb-1">Comodidades</label>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                                {['WIFI', 'AR_CONDICIONADO', 'LAVANDERIA', 'PORTARIA', 'ACADEMIA', 'CHURRASQUEIRA', 'MOBILIA_COMPLETA', 'PISCINA'].map((amenity) => (
+                                    <label key={amenity} className="flex items-center gap-2 cursor-pointer bg-gray-50 p-2 rounded border border-gray-200 hover:bg-gray-100">
+                                        <input type="checkbox"
+                                               value={amenity}
+                                               checked={formData.amenities.includes(amenity)}
+                                               onChange={(e) => {
+                                                   const { checked, value } = e.target;
+                                                   setFormData(prev => {
+                                                       const newAmenities = checked
+                                                           ? [...prev.amenities, value]
+                                                           : prev.amenities.filter(a => a !== value);
+                                                       return { ...prev, amenities: newAmenities };
+                                                   });
+                                               }}
+                                               className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500" />
+                                        <span className="text-xs font-medium text-gray-700">{amenity.replace('_', ' ')}</span>
+                                    </label>
+                                ))}
                             </div>
                         </div>
 
                         <div>
                             <label className="block text-sm font-bold text-gray-900 mb-1">Descrição</label>
-                            <textarea name="descricao" rows="4"
+                            <textarea name="description" rows="4"
                                       placeholder="Descreva os detalhes do imóvel..."
                                       className="mt-1 block w-full border border-gray-300 rounded-md p-2.5 text-gray-900 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                                       onChange={handleChange}></textarea>
@@ -286,8 +353,8 @@ export default function CadastrarKitnet() {
                             </div>
                             <div className="md:col-span-2">
                                 <label className="block text-sm font-bold text-gray-900 mb-1">Logradouro</label>
-                                <input type="text" name="logradouro" required
-                                       value={formData.logradouro}
+                                <input type="text" name="street" required
+                                       value={formData.street}
                                        placeholder="Rua, Avenida..."
                                        className="mt-1 block w-full border border-gray-300 rounded-md p-2.5 text-gray-900 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                                        onChange={handleChange} />

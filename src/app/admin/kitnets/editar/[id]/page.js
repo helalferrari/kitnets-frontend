@@ -17,13 +17,18 @@ export default function EditarKitnet() {
     const [cepError, setCepError] = useState('');
 
     const [formData, setFormData] = useState({
-        nome: '',
-        valor: '',
-        vagas: '',
-        taxa: '',
-        descricao: '',
+        name: '',
+        value: '',
+        parkingSpaces: '',
+        fee: '',
+        description: '',
+        area: '',
+        furnished: false,
+        petsAllowed: false,
+        bathroomType: 'PRIVATIVO',
+        amenities: [],
         cep: '',
-        logradouro: '',
+        street: '',
         complement: '',
         number: '',
         neighborhood: '',
@@ -61,13 +66,18 @@ export default function EditarKitnet() {
                 
                 // Preenche o formulário
                 setFormData({
-                    nome: data.nome,
-                    valor: data.valor,
-                    vagas: data.vagas,
-                    taxa: data.taxa,
-                    descricao: data.descricao,
+                    name: data.name,
+                    value: data.value,
+                    parkingSpaces: data.parkingSpaces,
+                    fee: data.fee,
+                    description: data.description,
+                    area: data.area || '',
+                    furnished: data.furnished || false,
+                    petsAllowed: data.petsAllowed || false,
+                    bathroomType: data.bathroomType || 'PRIVATIVO',
+                    amenities: data.amenities || [],
                     cep: data.cep || '',
-                    logradouro: data.logradouro || '',
+                    street: data.street || '',
                     complement: data.complement || '',
                     number: data.number || '',
                     neighborhood: data.neighborhood || '',
@@ -115,7 +125,7 @@ export default function EditarKitnet() {
                 const addressData = await fetchAddressByCep(cleanCep);
                 setFormData(prev => ({
                     ...prev,
-                    logradouro: addressData.street || prev.logradouro,
+                    street: addressData.street || prev.street,
                     neighborhood: addressData.neighborhood || prev.neighborhood,
                     city: addressData.city || prev.city,
                     state: addressData.state || prev.state,
@@ -155,13 +165,18 @@ export default function EditarKitnet() {
                     'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({
-                    nome: formData.nome,
-                    valor: parseFloat(formData.valor),
-                    vagas: parseInt(formData.vagas),
-                    taxa: parseFloat(formData.taxa),
-                    descricao: formData.descricao,
+                    name: formData.name,
+                    value: parseFloat(formData.value),
+                    parkingSpaces: parseInt(formData.parkingSpaces),
+                    fee: parseFloat(formData.fee),
+                    description: formData.description,
+                    area: parseFloat(formData.area || 0),
+                    furnished: formData.furnished,
+                    petsAllowed: formData.petsAllowed,
+                    bathroomType: formData.bathroomType,
+                    amenities: formData.amenities,
                     cep: formData.cep,
-                    logradouro: formData.logradouro,
+                    street: formData.street,
                     complement: formData.complement,
                     number: formData.number,
                     neighborhood: formData.neighborhood,
@@ -216,15 +231,39 @@ export default function EditarKitnet() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label className="block text-sm font-bold text-gray-900 mb-1">Nome do Anúncio</label>
-                                <input type="text" name="nome" required
-                                       value={formData.nome}
+                                <input type="text" name="name" required
+                                       value={formData.name}
                                        className="mt-1 block w-full border border-gray-300 rounded-md p-2.5 text-gray-900 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-all"
                                        onChange={handleChange} />
                             </div>
                             <div>
                                 <label className="block text-sm font-bold text-gray-900 mb-1">Valor (R$)</label>
-                                <input type="number" name="valor" step="0.01" required
-                                       value={formData.valor}
+                                <input type="number" name="value" step="0.01" required
+                                       value={formData.value}
+                                       className="mt-1 block w-full border border-gray-300 rounded-md p-2.5 text-gray-900 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-all"
+                                       onChange={handleChange} />
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label className="block text-sm font-bold text-gray-900 mb-1">Área (m²)</label>
+                                <input type="number" name="area" step="0.01"
+                                       value={formData.area}
+                                       className="mt-1 block w-full border border-gray-300 rounded-md p-2.5 text-gray-900 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-all"
+                                       onChange={handleChange} />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-bold text-gray-900 mb-1">Vagas</label>
+                                <input type="number" name="parkingSpaces" required
+                                       value={formData.parkingSpaces}
+                                       className="mt-1 block w-full border border-gray-300 rounded-md p-2.5 text-gray-900 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-all"
+                                       onChange={handleChange} />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-bold text-gray-900 mb-1">Taxa de Condomínio (R$)</label>
+                                <input type="number" name="fee" step="0.01" required
+                                       value={formData.fee}
                                        className="mt-1 block w-full border border-gray-300 rounded-md p-2.5 text-gray-900 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-all"
                                        onChange={handleChange} />
                             </div>
@@ -232,25 +271,61 @@ export default function EditarKitnet() {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-bold text-gray-900 mb-1">Vagas</label>
-                                <input type="number" name="vagas" required
-                                       value={formData.vagas}
-                                       className="mt-1 block w-full border border-gray-300 rounded-md p-2.5 text-gray-900 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-all"
-                                       onChange={handleChange} />
+                                <label className="block text-sm font-bold text-gray-900 mb-1">Tipo de Banheiro</label>
+                                <select name="bathroomType"
+                                        value={formData.bathroomType}
+                                        className="mt-1 block w-full border border-gray-300 rounded-md p-2.5 text-gray-900 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-all"
+                                        onChange={handleChange}>
+                                    <option value="PRIVATIVO">Privativo</option>
+                                    <option value="COMPARTILHADO">Compartilhado</option>
+                                </select>
                             </div>
-                            <div>
-                                <label className="block text-sm font-bold text-gray-900 mb-1">Taxa de Condomínio (R$)</label>
-                                <input type="number" name="taxa" step="0.01" required
-                                       value={formData.taxa}
-                                       className="mt-1 block w-full border border-gray-300 rounded-md p-2.5 text-gray-900 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-all"
-                                       onChange={handleChange} />
+                            <div className="flex items-center gap-6 mt-6">
+                                <label className="flex items-center gap-2 cursor-pointer">
+                                    <input type="checkbox" name="furnished"
+                                           checked={formData.furnished}
+                                           className="w-5 h-5 text-yellow-600 rounded focus:ring-yellow-500"
+                                           onChange={(e) => setFormData(prev => ({...prev, furnished: e.target.checked}))} />
+                                    <span className="text-gray-900 font-medium">Mobiliado</span>
+                                </label>
+                                <label className="flex items-center gap-2 cursor-pointer">
+                                    <input type="checkbox" name="petsAllowed"
+                                           checked={formData.petsAllowed}
+                                           className="w-5 h-5 text-yellow-600 rounded focus:ring-yellow-500"
+                                           onChange={(e) => setFormData(prev => ({...prev, petsAllowed: e.target.checked}))} />
+                                    <span className="text-gray-900 font-medium">Aceita Pets</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-bold text-gray-900 mb-1">Comodidades</label>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                                {['WIFI', 'AR_CONDICIONADO', 'LAVANDERIA', 'PORTARIA', 'ACADEMIA', 'CHURRASQUEIRA', 'MOBILIA_COMPLETA', 'PISCINA'].map((amenity) => (
+                                    <label key={amenity} className="flex items-center gap-2 cursor-pointer bg-gray-50 p-2 rounded border border-gray-200 hover:bg-gray-100">
+                                        <input type="checkbox"
+                                               value={amenity}
+                                               checked={formData.amenities.includes(amenity)}
+                                               onChange={(e) => {
+                                                   const { checked, value } = e.target;
+                                                   setFormData(prev => {
+                                                       const newAmenities = checked
+                                                           ? [...prev.amenities, value]
+                                                           : prev.amenities.filter(a => a !== value);
+                                                       return { ...prev, amenities: newAmenities };
+                                                   });
+                                               }}
+                                               className="w-4 h-4 text-yellow-600 rounded focus:ring-yellow-500" />
+                                        <span className="text-xs font-medium text-gray-700">{amenity.replace('_', ' ')}</span>
+                                    </label>
+                                ))}
                             </div>
                         </div>
 
                         <div>
                             <label className="block text-sm font-bold text-gray-900 mb-1">Descrição</label>
-                            <textarea name="descricao" rows="4"
-                                      value={formData.descricao}
+                            <textarea name="description" rows="4"
+                                      value={formData.description}
                                       className="mt-1 block w-full border border-gray-300 rounded-md p-2.5 text-gray-900 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-all"
                                       onChange={handleChange}></textarea>
                         </div>
@@ -276,8 +351,8 @@ export default function EditarKitnet() {
                             </div>
                             <div className="md:col-span-2">
                                 <label className="block text-sm font-bold text-gray-900 mb-1">Logradouro</label>
-                                <input type="text" name="logradouro" required
-                                       value={formData.logradouro}
+                                <input type="text" name="street" required
+                                       value={formData.street}
                                        placeholder="Rua, Avenida..."
                                        className="mt-1 block w-full border border-gray-300 rounded-md p-2.5 text-gray-900 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-all"
                                        onChange={handleChange} />

@@ -135,7 +135,7 @@ export default function Home() {
                                                 <div className="w-full md:w-48 h-48 md:h-32 bg-gray-100 rounded-md overflow-hidden flex-shrink-0 relative">
                                                     <img 
                                                         src={mainPhoto} 
-                                                        alt={kitnet.nome} 
+                                                        alt={kitnet.name} 
                                                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                                                     />
                                                 </div>
@@ -144,18 +144,18 @@ export default function Home() {
                                                 <div className="flex-1 flex flex-col justify-between">
                                                     <div className="flex justify-between items-start">
                                                         <div>
-                                                            <h2 className="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors">{kitnet.nome}</h2>
-                                                            <p className="text-sm text-gray-500 mt-1 line-clamp-2">{kitnet.descricao}</p>
+                                                            <h2 className="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors">{kitnet.name}</h2>
+                                                            <p className="text-sm text-gray-500 mt-1 line-clamp-2">{kitnet.description}</p>
                                                         </div>
                                                         <div className="text-right flex-shrink-0 ml-4">
-                                                            <p className="text-xl font-bold text-green-600">R$ {(kitnet.valor ?? 0).toFixed(2)}</p>
-                                                            <span className="text-xs text-gray-500 block mt-1">Taxa: R$ {(kitnet.taxa ?? 0).toFixed(2)}</span>
+                                                            <p className="text-xl font-bold text-green-600">R$ {(kitnet.value ?? 0).toFixed(2)}</p>
+                                                            <span className="text-xs text-gray-500 block mt-1">Taxa: R$ {(kitnet.fee ?? 0).toFixed(2)}</span>
                                                         </div>
                                                     </div>
 
                                                     <div className="mt-auto pt-4 flex items-center gap-4 text-sm text-gray-600">
                                                         <span className="flex items-center gap-1 font-medium bg-gray-100 px-2 py-1 rounded">
-                                                            🛏️ {kitnet.vagas} {kitnet.vagas === 1 ? 'Vaga' : 'Vagas'}
+                                                            🛏️ {kitnet.parkingSpaces} {kitnet.parkingSpaces === 1 ? 'Vaga' : 'Vagas'}
                                                         </span>
                                                     </div>
                                                 </div>

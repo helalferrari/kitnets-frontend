@@ -100,7 +100,7 @@ export default function MyKitnets() {
                                     {kitnet.photos && kitnet.photos.length > 0 ? (
                                         <img 
                                             src={kitnet.photos[0].thumbnailUrl?.startsWith('http') ? kitnet.photos[0].thumbnailUrl : `http://localhost:8080${kitnet.photos[0].thumbnailUrl}`} 
-                                            alt={kitnet.nome}
+                                            alt={kitnet.name}
                                             className="w-full h-full object-cover"
                                         />
                                     ) : (
@@ -109,20 +109,20 @@ export default function MyKitnets() {
                                         </div>
                                     )}
                                     <div className="absolute top-2 right-2 bg-white px-2 py-1 rounded text-xs font-bold shadow-sm">
-                                        R$ {kitnet.valor.toFixed(2)}
+                                        R$ {kitnet.value.toFixed(2)}
                                     </div>
                                 </div>
 
                                 {/* Conteúdo */}
                                 <div className="p-4">
-                                    <h2 className="text-xl font-bold text-gray-800 mb-2 truncate">{kitnet.nome}</h2>
+                                    <h2 className="text-xl font-bold text-gray-800 mb-2 truncate">{kitnet.name}</h2>
                                     <p className="text-gray-600 text-sm line-clamp-2 mb-4 h-10">
-                                        {kitnet.descricao}
+                                        {kitnet.description}
                                     </p>
                                     
                                     <div className="flex justify-between items-center border-t pt-4 mt-2">
                                         <span className="text-sm text-gray-500">
-                                            {kitnet.vagas} {kitnet.vagas === 1 ? 'vaga' : 'vagas'}
+                                            {kitnet.parkingSpaces} {kitnet.parkingSpaces === 1 ? 'vaga' : 'vagas'}
                                         </span>
                                         <div className="flex gap-2">
                                             <Link 
