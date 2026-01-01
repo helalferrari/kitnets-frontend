@@ -18,7 +18,14 @@ export default function EditarKitnet() {
         valor: '',
         vagas: '',
         taxa: '',
-        descricao: ''
+        descricao: '',
+        cep: '',
+        logradouro: '',
+        complement: '',
+        number: '',
+        neighborhood: '',
+        city: '',
+        state: ''
     });
 
     // --- 1. Autenticação e Fetch de Dados ---
@@ -53,7 +60,14 @@ export default function EditarKitnet() {
                     valor: data.valor,
                     vagas: data.vagas,
                     taxa: data.taxa,
-                    descricao: data.descricao
+                    descricao: data.descricao,
+                    cep: data.cep || '',
+                    logradouro: data.logradouro || '',
+                    complement: data.complement || '',
+                    number: data.number || '',
+                    neighborhood: data.neighborhood || '',
+                    city: data.city || '',
+                    state: data.state || ''
                 });
 
             } catch (error) {
@@ -75,9 +89,21 @@ export default function EditarKitnet() {
         </div>
     );
 
+    const maskCep = (value) => {
+        return value
+            .replace(/\D/g, '') // Remove tudo que não é dígito
+            .replace(/^(\d{5})(\d)/, '$1-$2') // Coloca o traço
+            .substring(0, 9); // Limita o tamanho
+    };
+
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
+        
+        if (name === 'cep') {
+            setFormData(prev => ({ ...prev, [name]: maskCep(value) }));
+        } else {
+            setFormData(prev => ({ ...prev, [name]: value }));
+        }
     };
 
     const handleSubmit = async (e) => {
@@ -98,7 +124,14 @@ export default function EditarKitnet() {
                     valor: parseFloat(formData.valor),
                     vagas: parseInt(formData.vagas),
                     taxa: parseFloat(formData.taxa),
-                    descricao: formData.descricao
+                    descricao: formData.descricao,
+                    cep: formData.cep,
+                    logradouro: formData.logradouro,
+                    complement: formData.complement,
+                    number: formData.number,
+                    neighborhood: formData.neighborhood,
+                    city: formData.city,
+                    state: formData.state
                 })
             });
 
@@ -183,6 +216,78 @@ export default function EditarKitnet() {
                                       value={formData.descricao}
                                       className="mt-1 block w-full border border-gray-300 rounded-md p-2.5 text-gray-900 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-all"
                                       onChange={handleChange}></textarea>
+                        </div>
+                    </div>
+
+                    {/* SEÇÃO 1.5: Endereço */}
+                    <div className="space-y-4 border-t pt-6">
+                        <h2 className="text-lg font-bold text-yellow-600 flex items-center gap-2">
+                            📍 Endereço
+                        </h2>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label className="block text-sm font-bold text-gray-900 mb-1">CEP</label>
+                                <input type="text" name="cep" required
+                                       value={formData.cep}
+                                       placeholder="00000-000"
+                                       className="mt-1 block w-full border border-gray-300 rounded-md p-2.5 text-gray-900 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-all"
+                                       onChange={handleChange} />
+                            </div>
+                            <div className="md:col-span-2">
+                                <label className="block text-sm font-bold text-gray-900 mb-1">Logradouro</label>
+                                <input type="text" name="logradouro" required
+                                       value={formData.logradouro}
+                                       placeholder="Rua, Avenida..."
+                                       className="mt-1 block w-full border border-gray-300 rounded-md p-2.5 text-gray-900 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-all"
+                                       onChange={handleChange} />
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label className="block text-sm font-bold text-gray-900 mb-1">Número</label>
+                                <input type="text" name="number"
+                                       value={formData.number}
+                                       placeholder="123"
+                                       className="mt-1 block w-full border border-gray-300 rounded-md p-2.5 text-gray-900 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-all"
+                                       onChange={handleChange} />
+                            </div>
+                            <div className="md:col-span-2">
+                                <label className="block text-sm font-bold text-gray-900 mb-1">Complemento</label>
+                                <input type="text" name="complement"
+                                       value={formData.complement}
+                                       placeholder="Apto 101, Bloco B..."
+                                       className="mt-1 block w-full border border-gray-300 rounded-md p-2.5 text-gray-900 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-all"
+                                       onChange={handleChange} />
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label className="block text-sm font-bold text-gray-900 mb-1">Bairro</label>
+                                <input type="text" name="neighborhood" required
+                                       value={formData.neighborhood}
+                                       placeholder="Centro"
+                                       className="mt-1 block w-full border border-gray-300 rounded-md p-2.5 text-gray-900 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-all"
+                                       onChange={handleChange} />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-bold text-gray-900 mb-1">Cidade</label>
+                                <input type="text" name="city" required
+                                       value={formData.city}
+                                       placeholder="Florianópolis"
+                                       className="mt-1 block w-full border border-gray-300 rounded-md p-2.5 text-gray-900 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-all"
+                                       onChange={handleChange} />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-bold text-gray-900 mb-1">Estado (UF)</label>
+                                <input type="text" name="state" required maxLength="2"
+                                       value={formData.state}
+                                       placeholder="SC"
+                                       className="mt-1 block w-full border border-gray-300 rounded-md p-2.5 text-gray-900 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-all uppercase"
+                                       onChange={handleChange} />
+                            </div>
                         </div>
                     </div>
 
