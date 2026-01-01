@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
+import { fetchAddressByCep } from '@/services/cepService';
 
 export default function CadastrarKitnet() {
     const router = useRouter();
@@ -13,6 +14,8 @@ export default function CadastrarKitnet() {
     // -------------------------------
 
     const [loading, setLoading] = useState(false);
+    const [cepLoading, setCepLoading] = useState(false);
+    const [cepError, setCepError] = useState('');
     const [previews, setPreviews] = useState([]);
 
     const [formData, setFormData] = useState({
@@ -27,7 +30,9 @@ export default function CadastrarKitnet() {
         number: '',
         neighborhood: '',
         city: '',
-        state: ''
+        state: '',
+        latitude: null,
+        longitude: null
     });
 
     const [files, setFiles] = useState([]);
@@ -63,11 +68,39 @@ export default function CadastrarKitnet() {
             .substring(0, 9); // Limita o tamanho
     };
 
+    const handleCepChange = async (value) => {
+        const maskedCep = maskCep(value);
+        setFormData(prev => ({ ...prev, cep: maskedCep }));
+        setCepError(''); // Limpa erro ao digitar
+
+        const cleanCep = maskedCep.replace(/\D/g, '');
+        if (cleanCep.length === 8) {
+            setCepLoading(true);
+            try {
+                const addressData = await fetchAddressByCep(cleanCep);
+                setFormData(prev => ({
+                    ...prev,
+                    logradouro: addressData.street || prev.logradouro,
+                    neighborhood: addressData.neighborhood || prev.neighborhood,
+                    city: addressData.city || prev.city,
+                    state: addressData.state || prev.state,
+                    latitude: addressData.location?.coordinates?.latitude || null,
+                    longitude: addressData.location?.coordinates?.longitude || null
+                }));
+            } catch (error) {
+                console.error("Erro ao buscar CEP:", error);
+                setCepError("CEP não encontrado ou inválido.");
+            } finally {
+                setCepLoading(false);
+            }
+        }
+    };
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         
         if (name === 'cep') {
-            setFormData(prev => ({ ...prev, [name]: maskCep(value) }));
+            handleCepChange(value);
         } else {
             setFormData(prev => ({ ...prev, [name]: value }));
         }
@@ -114,7 +147,9 @@ export default function CadastrarKitnet() {
                 number: formData.number,
                 neighborhood: formData.neighborhood,
                 city: formData.city,
-                state: formData.state
+                state: formData.state,
+                lat: formData.latitude,
+                long: formData.longitude
             };
 
             dataToSend.append('kitnet', new Blob([JSON.stringify(kitnetJson)], {
@@ -239,16 +274,20 @@ export default function CadastrarKitnet() {
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
-                                <label className="block text-sm font-bold text-gray-900 mb-1">CEP</label>
+                                <label className="block text-sm font-bold text-gray-900 mb-1">
+                                    CEP {cepLoading && <span className="text-blue-500 text-xs animate-pulse">(Buscando...)</span>}
+                                </label>
                                 <input type="text" name="cep" required
                                        value={formData.cep}
                                        placeholder="00000-000"
-                                       className="mt-1 block w-full border border-gray-300 rounded-md p-2.5 text-gray-900 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                                       className={`mt-1 block w-full border ${cepError ? 'border-red-500' : 'border-gray-300'} rounded-md p-2.5 text-gray-900 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all`}
                                        onChange={handleChange} />
+                                {cepError && <p className="text-red-500 text-xs mt-1">{cepError}</p>}
                             </div>
                             <div className="md:col-span-2">
                                 <label className="block text-sm font-bold text-gray-900 mb-1">Logradouro</label>
                                 <input type="text" name="logradouro" required
+                                       value={formData.logradouro}
                                        placeholder="Rua, Avenida..."
                                        className="mt-1 block w-full border border-gray-300 rounded-md p-2.5 text-gray-900 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                                        onChange={handleChange} />
@@ -276,6 +315,7 @@ export default function CadastrarKitnet() {
                             <div>
                                 <label className="block text-sm font-bold text-gray-900 mb-1">Bairro</label>
                                 <input type="text" name="neighborhood" required
+                                       value={formData.neighborhood}
                                        placeholder="Centro"
                                        className="mt-1 block w-full border border-gray-300 rounded-md p-2.5 text-gray-900 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                                        onChange={handleChange} />
@@ -283,6 +323,7 @@ export default function CadastrarKitnet() {
                             <div>
                                 <label className="block text-sm font-bold text-gray-900 mb-1">Cidade</label>
                                 <input type="text" name="city" required
+                                       value={formData.city}
                                        placeholder="Florianópolis"
                                        className="mt-1 block w-full border border-gray-300 rounded-md p-2.5 text-gray-900 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                                        onChange={handleChange} />
@@ -290,6 +331,7 @@ export default function CadastrarKitnet() {
                             <div>
                                 <label className="block text-sm font-bold text-gray-900 mb-1">Estado (UF)</label>
                                 <input type="text" name="state" required maxLength="2"
+                                       value={formData.state}
                                        placeholder="SC"
                                        className="mt-1 block w-full border border-gray-300 rounded-md p-2.5 text-gray-900 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all uppercase"
                                        onChange={handleChange} />
