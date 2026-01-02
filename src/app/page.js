@@ -12,22 +12,25 @@ export default function Home() {
     const [searchQuery, setSearchQuery] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [searchPerformed, setSearchPerformed] = useState(false);
 
     // Flag para controle de Hydration
     const [isMounted, setIsMounted] = useState(false);
 
     const handleSearch = async (e) => {
         if (e) e.preventDefault();
+        setSearchPerformed(true);
+
+        if (!searchQuery.trim()) {
+            setKitnets([]);
+            return;
+        }
 
         setLoading(true);
         setError(null);
 
         try {
-            let url = API_BASE_URL;
-            if (searchQuery.trim()) {
-                url = `${API_BASE_URL}/search/ai?query=${encodeURIComponent(searchQuery)}`;
-            }
-
+            const url = `${API_BASE_URL}/search/ai?query=${encodeURIComponent(searchQuery)}`;
             const response = await fetch(url);
 
             if (!response.ok) {
@@ -35,7 +38,8 @@ export default function Home() {
             }
 
             const data = await response.json();
-            setKitnets(data);
+            // Apresentar somente os 10 melhores resultados
+            setKitnets(data.slice(0, 10));
 
         } catch (err) {
             console.error("Erro na busca:", err);
@@ -47,7 +51,6 @@ export default function Home() {
 
     useEffect(() => {
         setIsMounted(true);
-        handleSearch();
     }, []);
 
     return (
@@ -147,10 +150,14 @@ export default function Home() {
                                         </Link>
                                     );
                                 })
-                            ) : (
+                            ) : searchPerformed ? (
                                 <div className="text-center py-10 bg-white rounded-lg border border-dashed border-gray-300">
                                     <p className="text-gray-500 font-medium text-lg">Nenhuma kitnet encontrada.</p>
                                     <p className="text-gray-400 text-sm mt-2">Tente descrever de outra forma ou simplifique sua busca.</p>
+                                </div>
+                            ) : (
+                                <div className="text-center py-10">
+                                    <p className="text-gray-400 italic">Digite acima para começar sua busca inteligente.</p>
                                 </div>
                             )}
                         </div>
