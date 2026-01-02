@@ -5,13 +5,11 @@ import Link from 'next/link';
 // Verifique se o caminho do seu Navbar está correto
 import Navbar from '@/components/Navbar';
 
-const API_BASE_URL = 'http://localhost:8080/api/kitnets/search';
+const API_BASE_URL = 'http://localhost:8080/api/kitnets';
 
 export default function Home() {
     const [kitnets, setKitnets] = useState([]);
-    const [cep, setCep] = useState('');
-    const [min, setMin] = useState('');
-    const [max, setMax] = useState('');
+    const [searchQuery, setSearchQuery] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
@@ -24,13 +22,12 @@ export default function Home() {
         setLoading(true);
         setError(null);
 
-        const params = new URLSearchParams();
-        if (cep) params.append('cep', cep);
-        if (min) params.append('min', min);
-        if (max) params.append('max', max);
-
         try {
-            const url = `${API_BASE_URL}?${params.toString()}`;
+            let url = API_BASE_URL;
+            if (searchQuery.trim()) {
+                url = `${API_BASE_URL}/search/ai?query=${encodeURIComponent(searchQuery)}`;
+            }
+
             const response = await fetch(url);
 
             if (!response.ok) {
@@ -62,51 +59,36 @@ export default function Home() {
             <div className="pt-24 px-4">
                 <div className="max-w-4xl mx-auto">
 
-                    <h1 className="text-3xl font-bold mb-6 text-gray-800">Busca de Kitnets</h1>
+                    <div className="text-center mb-10">
+                        <h1 className="text-4xl font-extrabold text-gray-900 mb-2">Encontre seu novo lar</h1>
+                        <p className="text-gray-600">Busque de forma natural, como se estivesse conversando com um amigo.</p>
+                    </div>
 
-                    {/* Formulário de Busca */}
-                    <form onSubmit={handleSearch} className="bg-white p-6 rounded-lg shadow-md mb-8 grid grid-cols-1 md:grid-cols-4 gap-4 border border-gray-200">
-
-                        {/* Input CEP */}
-                        <div>
-                            <label className="block text-sm font-bold text-gray-800 mb-1">CEP (Busca na Descrição)</label>
+                    {/* Formulário de Busca Semântica */}
+                    <form onSubmit={handleSearch} className="mb-12 relative max-w-2xl mx-auto">
+                        <div className="relative">
                             <input
                                 type="text"
-                                value={cep}
-                                onChange={(e) => setCep(e.target.value)}
-                                className="w-full p-2.5 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
-                                placeholder="Ex: 88050"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="w-full p-4 pl-6 pr-32 rounded-full border border-gray-300 shadow-lg focus:ring-4 focus:ring-blue-100 focus:border-blue-500 text-gray-900 text-lg transition-all outline-none"
+                                placeholder="Ex: Kitnet mobiliada no centro com garagem até R$ 1500"
                             />
-                        </div>
-
-                        {/* Input Preço Mínimo */}
-                        <div>
-                            <label className="block text-sm font-bold text-gray-800 mb-1">Preço Mín.</label>
-                            <input
-                                type="number"
-                                value={min}
-                                onChange={(e) => setMin(e.target.value)}
-                                className="w-full p-2.5 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
-                                placeholder="0.00"
-                            />
-                        </div>
-
-                        {/* Input Preço Máximo */}
-                        <div>
-                            <label className="block text-sm font-bold text-gray-800 mb-1">Preço Máx.</label>
-                            <input
-                                type="number"
-                                value={max}
-                                onChange={(e) => setMax(e.target.value)}
-                                className="w-full p-2.5 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
-                                placeholder="2000.00"
-                            />
-                        </div>
-
-                        {/* Botão de Busca */}
-                        <div className="flex items-end">
-                            <button type="submit" disabled={loading} className="w-full p-2.5 bg-blue-600 text-white font-bold rounded-md hover:bg-blue-700 transition duration-150 ease-in-out disabled:bg-gray-400">
-                                {loading ? 'Buscando...' : 'Buscar Kitnets'}
+                            <button 
+                                type="submit" 
+                                disabled={loading} 
+                                className="absolute right-2 top-2 bottom-2 bg-blue-600 text-white font-bold px-6 rounded-full hover:bg-blue-700 transition duration-150 ease-in-out disabled:bg-gray-400 flex items-center gap-2"
+                            >
+                                {loading ? (
+                                    <span className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></span>
+                                ) : (
+                                    <>
+                                        <span>Buscar</span>
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                        </svg>
+                                    </>
+                                )}
                             </button>
                         </div>
                     </form>
@@ -117,7 +99,9 @@ export default function Home() {
                             {error && <p className="text-red-600 mb-4 bg-red-50 p-3 rounded border border-red-200">{error}</p>}
 
                             {loading ? (
-                                <p className="text-gray-500 text-center py-4">Carregando resultados...</p>
+                                <div className="text-center py-10">
+                                    <p className="text-gray-500 text-lg animate-pulse">A inteligência artificial está encontrando as melhores opções para você...</p>
+                                </div>
                             ) : kitnets.length > 0 ? (
                                 kitnets.map((kitnet) => {
                                     const firstPhoto = kitnet.photos && kitnet.photos.length > 0 ? kitnet.photos[0] : null;
@@ -165,7 +149,8 @@ export default function Home() {
                                 })
                             ) : (
                                 <div className="text-center py-10 bg-white rounded-lg border border-dashed border-gray-300">
-                                    <p className="text-gray-500 font-medium">Nenhuma kitnet encontrada com os filtros atuais.</p>
+                                    <p className="text-gray-500 font-medium text-lg">Nenhuma kitnet encontrada.</p>
+                                    <p className="text-gray-400 text-sm mt-2">Tente descrever de outra forma ou simplifique sua busca.</p>
                                 </div>
                             )}
                         </div>
