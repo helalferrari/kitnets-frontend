@@ -23,6 +23,7 @@ export default function Home() {
 
         if (!searchQuery.trim()) {
             setKitnets([]);
+            sessionStorage.removeItem('lastSearch'); // Limpa armazenamento se busca vazia
             return;
         }
 
@@ -38,8 +39,16 @@ export default function Home() {
             }
 
             const data = await response.json();
-            // Apresentar somente os 10 melhores resultados
-            setKitnets(data.slice(0, 10));
+            const topResults = data.slice(0, 10);
+            
+            setKitnets(topResults);
+            
+            // Salva o estado da busca no sessionStorage
+            sessionStorage.setItem('lastSearch', JSON.stringify({
+                query: searchQuery,
+                results: topResults,
+                performed: true
+            }));
 
         } catch (err) {
             console.error("Erro na busca:", err);
@@ -51,6 +60,20 @@ export default function Home() {
 
     useEffect(() => {
         setIsMounted(true);
+        
+        // Recupera o estado da busca do sessionStorage ao montar
+        const savedSearch = sessionStorage.getItem('lastSearch');
+        if (savedSearch) {
+            try {
+                const { query, results, performed } = JSON.parse(savedSearch);
+                setSearchQuery(query || '');
+                setKitnets(results || []);
+                setSearchPerformed(performed || false);
+            } catch (e) {
+                console.error("Erro ao recuperar busca salva:", e);
+                sessionStorage.removeItem('lastSearch');
+            }
+        }
     }, []);
 
     return (
