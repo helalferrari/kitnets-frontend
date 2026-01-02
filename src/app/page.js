@@ -92,30 +92,37 @@ export default function Home() {
 
                     {/* Formulário de Busca Semântica */}
                     <form onSubmit={handleSearch} className="mb-12 relative max-w-2xl mx-auto">
-                        <div className="relative">
-                            <input
-                                type="text"
+                        <div className="relative bg-white rounded-3xl border border-gray-300 shadow-lg focus-within:ring-4 focus-within:ring-blue-100 focus-within:border-blue-500 transition-all">
+                            <textarea
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full p-4 pl-6 pr-32 rounded-full border border-gray-300 shadow-lg focus:ring-4 focus:ring-blue-100 focus:border-blue-500 text-gray-900 text-lg transition-all outline-none"
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' && !e.shiftKey) {
+                                        e.preventDefault();
+                                        handleSearch(e);
+                                    }
+                                }}
+                                className="w-full p-4 pl-6 pr-6 rounded-t-3xl bg-transparent text-gray-900 text-lg outline-none resize-none min-h-[80px]"
                                 placeholder="Ex: Kitnet mobiliada no centro com garagem até R$ 1500"
                             />
-                            <button 
-                                type="submit" 
-                                disabled={loading} 
-                                className="absolute right-2 top-2 bottom-2 bg-blue-600 text-white font-bold px-6 rounded-full hover:bg-blue-700 transition duration-150 ease-in-out disabled:bg-gray-400 flex items-center gap-2"
-                            >
-                                {loading ? (
-                                    <span className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></span>
-                                ) : (
-                                    <>
-                                        <span>Buscar</span>
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                        </svg>
-                                    </>
-                                )}
-                            </button>
+                            <div className="flex justify-end p-2">
+                                <button 
+                                    type="submit" 
+                                    disabled={loading} 
+                                    className="bg-blue-600 text-white font-bold px-6 py-2 rounded-full hover:bg-blue-700 transition duration-150 ease-in-out disabled:bg-gray-400 flex items-center gap-2"
+                                >
+                                    {loading ? (
+                                        <span className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></span>
+                                    ) : (
+                                        <>
+                                            <span>Buscar</span>
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                            </svg>
+                                        </>
+                                    )}
+                                </button>
+                            </div>
                         </div>
                     </form>
 
