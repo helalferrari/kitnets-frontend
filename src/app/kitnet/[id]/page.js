@@ -12,8 +12,14 @@ export default function KitnetDetails({ params }) {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [selectedImageIndex, setSelectedImageIndex] = useState(null);
+    const [user, setUser] = useState(null);
 
     useEffect(() => {
+        const userStored = localStorage.getItem('user');
+        if (userStored) {
+            setUser(JSON.parse(userStored));
+        }
+
         const fetchKitnet = async () => {
             try {
                 const response = await fetch(`${API_BASE_URL}/${id}`);
@@ -94,9 +100,20 @@ export default function KitnetDetails({ params }) {
             <Navbar />
 
             <div className="pt-24 px-4 max-w-5xl mx-auto">
-                <Link href="/" className="inline-flex items-center text-blue-600 hover:underline mb-6 font-medium">
-                    ← Voltar para a lista
-                </Link>
+                <div className="flex justify-between items-center mb-6">
+                    <Link href="/" className="inline-flex items-center text-blue-600 hover:underline font-medium">
+                        ← Voltar para a lista
+                    </Link>
+
+                    {user && user.role === 'LANDLORD' && (
+                        <Link href="/admin/kitnets" className="inline-flex items-center gap-2 text-gray-600 hover:text-blue-600 font-medium transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" />
+                            </svg>
+                            Painel Administrativo
+                        </Link>
+                    )}
+                </div>
 
                 <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
                     
