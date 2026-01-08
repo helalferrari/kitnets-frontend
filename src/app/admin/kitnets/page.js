@@ -9,7 +9,9 @@ export default function MyKitnets() {
     const [kitnets, setKitnets] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
     const router = useRouter();
+    const itemsPerPage = 20;
 
     useEffect(() => {
         const fetchMyKitnets = async () => {
@@ -57,9 +59,22 @@ export default function MyKitnets() {
         fetchMyKitnets();
     }, [router]);
 
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentItems = kitnets.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(kitnets.length / itemsPerPage);
+
+    const handlePageChange = (newPage) => {
+        if (newPage >= 1 && newPage <= totalPages) {
+            setCurrentPage(newPage);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    };
+
     if (loading) return (
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-            <p className="text-gray-500">Carregando...</p>
+        <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center">
+            <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent border-solid rounded-full animate-spin mb-4"></div>
+            <p className="text-gray-500 font-medium">Carregando kitnets...</p>
         </div>
     );
 
@@ -84,6 +99,29 @@ export default function MyKitnets() {
                     </div>
                 )}
 
+                {/* Paginação no Topo */}
+                {kitnets.length > itemsPerPage && (
+                    <div className="flex justify-center items-center gap-4 mb-6">
+                        <button
+                            onClick={() => handlePageChange(currentPage - 1)}
+                            disabled={currentPage === 1}
+                            className={`px-4 py-2 rounded-md border ${currentPage === 1 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white text-gray-700 hover:bg-gray-50 shadow-sm'}`}
+                        >
+                            Anterior
+                        </button>
+                        <span className="text-gray-600 font-medium">
+                            Página {currentPage} de {totalPages}
+                        </span>
+                        <button
+                            onClick={() => handlePageChange(currentPage + 1)}
+                            disabled={currentPage === totalPages}
+                            className={`px-4 py-2 rounded-md border ${currentPage === totalPages ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white text-gray-700 hover:bg-gray-50 shadow-sm'}`}
+                        >
+                            Próxima
+                        </button>
+                    </div>
+                )}
+
                 {kitnets.length === 0 && !error ? (
                     <div className="text-center py-16 bg-white rounded-lg border border-dashed border-gray-300">
                         <p className="text-gray-500 text-lg mb-4">Você ainda não tem kitnets cadastradas.</p>
@@ -93,7 +131,7 @@ export default function MyKitnets() {
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {kitnets.map((kitnet) => (
+                        {currentItems.map((kitnet) => (
                             <div key={kitnet.id} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
                                 {/* Imagem de Capa */}
                                 <div className="h-48 bg-gray-100 relative">
