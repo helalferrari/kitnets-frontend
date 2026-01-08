@@ -26,7 +26,7 @@ export default function Navbar() {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         setUser(null);
-        router.push('/login');
+        router.push('/');
     };
 
     return (
