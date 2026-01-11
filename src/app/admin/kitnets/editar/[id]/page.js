@@ -19,10 +19,11 @@ export default function EditarKitnet() {
     const [formData, setFormData] = useState({
         name: '',
         value: '',
-        parkingSpaces: '',
-        fee: '',
         description: '',
         area: '',
+        floor: '',
+        conciergeType: 'NONE',
+        lockType: 'KEY',
         furnished: false,
         petsAllowed: false,
         bathroomType: 'PRIVATIVO',
@@ -68,10 +69,11 @@ export default function EditarKitnet() {
                 setFormData({
                     name: data.name,
                     value: data.value,
-                    parkingSpaces: data.parkingSpaces,
-                    fee: data.fee,
                     description: data.description,
                     area: data.area || '',
+                    floor: data.floor || '',
+                    conciergeType: data.conciergeType || 'NONE',
+                    lockType: data.lockType || 'KEY',
                     furnished: data.furnished || false,
                     petsAllowed: data.petsAllowed || false,
                     bathroomType: data.bathroomType || 'PRIVATIVO',
@@ -167,10 +169,11 @@ export default function EditarKitnet() {
                 body: JSON.stringify({
                     name: formData.name,
                     value: parseFloat(formData.value),
-                    parkingSpaces: parseInt(formData.parkingSpaces),
-                    fee: parseFloat(formData.fee),
                     description: formData.description,
                     area: parseFloat(formData.area || 0),
+                    floor: formData.floor ? parseInt(formData.floor) : null,
+                    conciergeType: formData.conciergeType,
+                    lockType: formData.lockType,
                     furnished: formData.furnished,
                     petsAllowed: formData.petsAllowed,
                     bathroomType: formData.bathroomType,
@@ -254,18 +257,21 @@ export default function EditarKitnet() {
                                        onChange={handleChange} />
                             </div>
                             <div>
-                                <label className="block text-sm font-bold text-gray-900 mb-1">Vagas</label>
-                                <input type="number" name="parkingSpaces" required
-                                       value={formData.parkingSpaces}
+                                <label className="block text-sm font-bold text-gray-900 mb-1">Andar</label>
+                                <input type="number" name="floor"
+                                       value={formData.floor}
                                        className="mt-1 block w-full border border-gray-300 rounded-md p-2.5 text-gray-900 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-all"
                                        onChange={handleChange} />
                             </div>
                             <div>
-                                <label className="block text-sm font-bold text-gray-900 mb-1">Taxa de Condomínio (R$)</label>
-                                <input type="number" name="fee" step="0.01" required
-                                       value={formData.fee}
-                                       className="mt-1 block w-full border border-gray-300 rounded-md p-2.5 text-gray-900 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-all"
-                                       onChange={handleChange} />
+                                <label className="block text-sm font-bold text-gray-900 mb-1">Tipo de Fechadura</label>
+                                <select name="lockType"
+                                        value={formData.lockType}
+                                        className="mt-1 block w-full border border-gray-300 rounded-md p-2.5 text-gray-900 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-all"
+                                        onChange={handleChange}>
+                                    <option value="KEY">Chave</option>
+                                    <option value="PASSWORD">Senha</option>
+                                </select>
                             </div>
                         </div>
 
@@ -280,22 +286,35 @@ export default function EditarKitnet() {
                                     <option value="COMPARTILHADO">Compartilhado</option>
                                 </select>
                             </div>
-                            <div className="flex items-center gap-6 mt-6">
-                                <label className="flex items-center gap-2 cursor-pointer">
-                                    <input type="checkbox" name="furnished"
-                                           checked={formData.furnished}
-                                           className="w-5 h-5 text-yellow-600 rounded focus:ring-yellow-500"
-                                           onChange={(e) => setFormData(prev => ({...prev, furnished: e.target.checked}))} />
-                                    <span className="text-gray-900 font-medium">Mobiliado</span>
-                                </label>
-                                <label className="flex items-center gap-2 cursor-pointer">
-                                    <input type="checkbox" name="petsAllowed"
-                                           checked={formData.petsAllowed}
-                                           className="w-5 h-5 text-yellow-600 rounded focus:ring-yellow-500"
-                                           onChange={(e) => setFormData(prev => ({...prev, petsAllowed: e.target.checked}))} />
-                                    <span className="text-gray-900 font-medium">Aceita Pets</span>
-                                </label>
+                            <div>
+                                <label className="block text-sm font-bold text-gray-900 mb-1">Portaria</label>
+                                <select name="conciergeType"
+                                        value={formData.conciergeType}
+                                        className="mt-1 block w-full border border-gray-300 rounded-md p-2.5 text-gray-900 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-all"
+                                        onChange={handleChange}>
+                                    <option value="NONE">Sem Portaria</option>
+                                    <option value="TWENTY_FOUR_HOURS">24 Horas</option>
+                                    <option value="DAYTIME">Diurna</option>
+                                    <option value="NIGHTTIME">Noturna</option>
+                                </select>
                             </div>
+                        </div>
+
+                        <div className="flex items-center gap-6 mt-4">
+                            <label className="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" name="furnished"
+                                       checked={formData.furnished}
+                                       className="w-5 h-5 text-yellow-600 rounded focus:ring-yellow-500"
+                                       onChange={(e) => setFormData(prev => ({...prev, furnished: e.target.checked}))} />
+                                <span className="text-gray-900 font-medium">Mobiliado</span>
+                            </label>
+                            <label className="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" name="petsAllowed"
+                                       checked={formData.petsAllowed}
+                                       className="w-5 h-5 text-yellow-600 rounded focus:ring-yellow-500"
+                                       onChange={(e) => setFormData(prev => ({...prev, petsAllowed: e.target.checked}))} />
+                                <span className="text-gray-900 font-medium">Aceita Pets</span>
+                            </label>
                         </div>
 
                         <div>

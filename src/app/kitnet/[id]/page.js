@@ -128,7 +128,6 @@ export default function KitnetDetails({ params }) {
                             </div>
                             <div className="text-left md:text-right bg-blue-50 px-6 py-3 rounded-lg border border-blue-100">
                                 <p className="text-3xl font-bold text-blue-700">R$ {(kitnet.value ?? 0).toFixed(2)}</p>
-                                <span className="text-sm text-blue-600 font-medium">Taxa: R$ {(kitnet.fee ?? 0).toFixed(2)}</span>
                             </div>
                         </div>
                     </div>
@@ -187,8 +186,8 @@ export default function KitnetDetails({ params }) {
                             <h2 className="text-lg font-bold text-gray-800 mb-4 border-b border-gray-200 pb-2">Informações</h2>
                             <ul className="space-y-3 text-gray-700">
                                 <li className="flex justify-between">
-                                    <span className="font-medium">Vagas:</span>
-                                    <span>{kitnet.parkingSpaces}</span>
+                                    <span className="font-medium">Andar:</span>
+                                    <span>{kitnet.floor !== null ? kitnet.floor : 'Térreo'}</span>
                                 </li>
                                 <li className="flex justify-between">
                                     <span className="font-medium">Tamanho:</span>
@@ -196,7 +195,7 @@ export default function KitnetDetails({ params }) {
                                 </li>
                                 <li className="flex justify-between">
                                     <span className="font-medium">Banheiro:</span>
-                                    <span className="capitalize">{kitnet.bathroomType?.toLowerCase()}</span>
+                                    <span className="capitalize">{kitnet.bathroomType?.toLowerCase().replace(/_/g, ' ')}</span>
                                 </li>
                                 <li className="flex justify-between">
                                     <span className="font-medium">Mobiliado:</span>
@@ -205,6 +204,14 @@ export default function KitnetDetails({ params }) {
                                 <li className="flex justify-between">
                                     <span className="font-medium">Aceita Pets:</span>
                                     <span>{kitnet.petsAllowed ? 'Sim' : 'Não'}</span>
+                                </li>
+                                <li className="flex justify-between">
+                                    <span className="font-medium">Portaria:</span>
+                                    <span className="capitalize">{kitnet.conciergeType?.toLowerCase().replace(/_/g, ' ')}</span>
+                                </li>
+                                <li className="flex justify-between">
+                                    <span className="font-medium">Fechadura:</span>
+                                    <span className="capitalize">{kitnet.lockType?.toLowerCase().replace(/_/g, ' ')}</span>
                                 </li>
                             </ul>
                             
