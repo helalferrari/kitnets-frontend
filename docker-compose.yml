@@ -1,0 +1,12 @@
+services:
+  frontend:
+    build: .
+    container_name: kitnets-frontend
+    # 'network_mode: host' is used because the application code currently has
+    # hardcoded 'http://localhost:8080' API calls. This allows the container
+    # to access the backend running on the host machine's port 8080.
+    # Note: This works natively on Linux.
+    network_mode: host
+    environment:
+      - NODE_ENV=production
+    restart: always
