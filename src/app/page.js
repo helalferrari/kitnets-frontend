@@ -166,14 +166,16 @@ export default function Home() {
                                                         </div>
                                                         <div className="text-right flex-shrink-0 ml-4">
                                                             <p className="text-xl font-bold text-green-600">R$ {(kitnet.value ?? 0).toFixed(2)}</p>
-                                                            <span className="text-xs text-gray-500 block mt-1">Taxa: R$ {(kitnet.fee ?? 0).toFixed(2)}</span>
                                                         </div>
                                                     </div>
 
                                                     <div className="mt-auto pt-4 flex items-center gap-4 text-sm text-gray-600">
                                                         <span className="flex items-center gap-1 font-medium bg-gray-100 px-2 py-1 rounded">
-                                                            🛏️ {kitnet.parkingSpaces} {kitnet.parkingSpaces === 1 ? 'Vaga' : 'Vagas'}
+                                                            🏠 {kitnet.area ? `${kitnet.area} m²` : 'N/A'}
                                                         </span>
+                                                        {kitnet.status === 'RENTED' && (
+                                                            <span className="bg-red-50 text-red-600 px-2 py-1 rounded font-bold text-xs">ALUGADA</span>
+                                                        )}
                                                     </div>
                                                 </div>
                                             </div>

@@ -159,9 +159,14 @@ export default function MyKitnets() {
                                     </p>
                                     
                                     <div className="flex justify-between items-center border-t pt-4 mt-2">
-                                        <span className="text-sm text-gray-500">
-                                            {kitnet.parkingSpaces} {kitnet.parkingSpaces === 1 ? 'vaga' : 'vagas'}
-                                        </span>
+                                        <div className="flex flex-col">
+                                            <span className="text-sm text-gray-500">
+                                                🏠 {kitnet.area ? `${kitnet.area} m²` : 'N/A'}
+                                            </span>
+                                            <span className={`text-xs font-bold ${kitnet.status === 'AVAILABLE' ? 'text-green-600' : 'text-red-600'}`}>
+                                                {kitnet.status === 'AVAILABLE' ? 'DISPONÍVEL' : 'ALUGADA'}
+                                            </span>
+                                        </div>
                                         <div className="flex gap-2">
                                             <Link 
                                                 href={`/kitnet/${kitnet.id}`}

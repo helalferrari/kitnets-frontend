@@ -24,6 +24,7 @@ export default function CadastrarKitnet() {
         description: '',
         area: '',
         floor: '',
+        status: 'AVAILABLE',
         conciergeType: 'NONE',
         lockType: 'KEY',
         furnished: false,
@@ -147,6 +148,7 @@ export default function CadastrarKitnet() {
                 description: formData.description,
                 area: parseFloat(formData.area || 0),
                 floor: formData.floor ? parseInt(formData.floor) : null,
+                status: formData.status,
                 conciergeType: formData.conciergeType,
                 lockType: formData.lockType,
                 furnished: formData.furnished,
@@ -250,6 +252,17 @@ export default function CadastrarKitnet() {
                                        className="mt-1 block w-full border border-gray-300 rounded-md p-2.5 text-gray-900 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                                        onChange={handleChange} />
                             </div>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-bold text-gray-900 mb-1">Situação do Imóvel</label>
+                            <select name="status"
+                                    value={formData.status}
+                                    className={`mt-1 block w-full border rounded-md p-2.5 text-gray-900 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all font-bold ${formData.status === 'AVAILABLE' ? 'bg-green-50 border-green-300 text-green-700' : 'bg-red-50 border-red-300 text-red-700'}`}
+                                    onChange={handleChange}>
+                                <option value="AVAILABLE" className="bg-white text-gray-900">🟢 Disponível</option>
+                                <option value="RENTED" className="bg-white text-gray-900">🔴 Alugada</option>
+                            </select>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

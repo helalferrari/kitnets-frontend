@@ -126,8 +126,17 @@ export default function KitnetDetails({ params }) {
                                     📍 {kitnet.street}, {kitnet.number} - {kitnet.neighborhood}, {kitnet.city} - {kitnet.state}
                                 </p>
                             </div>
-                            <div className="text-left md:text-right bg-blue-50 px-6 py-3 rounded-lg border border-blue-100">
+                            <div className="text-left md:text-right bg-blue-50 px-6 py-3 rounded-lg border border-blue-100 flex flex-col items-end gap-2">
                                 <p className="text-3xl font-bold text-blue-700">R$ {(kitnet.value ?? 0).toFixed(2)}</p>
+                                {kitnet.status === 'AVAILABLE' ? (
+                                    <span className="bg-green-100 text-green-800 text-sm font-bold px-3 py-1 rounded-full border border-green-200">
+                                        🟢 Disponível
+                                    </span>
+                                ) : (
+                                    <span className="bg-red-100 text-red-800 text-sm font-bold px-3 py-1 rounded-full border border-red-200">
+                                        🔴 Alugada
+                                    </span>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -207,11 +216,21 @@ export default function KitnetDetails({ params }) {
                                 </li>
                                 <li className="flex justify-between">
                                     <span className="font-medium">Portaria:</span>
-                                    <span className="capitalize">{kitnet.conciergeType?.toLowerCase().replace(/_/g, ' ')}</span>
+                                    <span className="capitalize">
+                                        {(!kitnet.conciergeType || kitnet.conciergeType === 'NONE') 
+                                            ? 'Sem portaria' 
+                                            : kitnet.conciergeType?.toLowerCase().replace(/_/g, ' ')}
+                                    </span>
                                 </li>
                                 <li className="flex justify-between">
                                     <span className="font-medium">Fechadura:</span>
-                                    <span className="capitalize">{kitnet.lockType?.toLowerCase().replace(/_/g, ' ')}</span>
+                                    <span className="capitalize">
+                                        {kitnet.lockType === 'KEY' 
+                                            ? 'Chave' 
+                                            : kitnet.lockType === 'PASSWORD' 
+                                                ? 'Com senha' 
+                                                : kitnet.lockType?.toLowerCase().replace(/_/g, ' ')}
+                                    </span>
                                 </li>
                             </ul>
                             
